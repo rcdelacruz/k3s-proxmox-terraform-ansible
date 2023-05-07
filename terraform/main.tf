@@ -7,8 +7,9 @@ resource "proxmox_vm_qemu" "proxmox_vm_master" {
   agent       = 1
   memory      = var.num_k3s_masters_mem
   cores       = 4
-
   ipconfig0 = "ip=${var.master_ips[count.index]}/${var.networkrange},gw=${var.gateway}"
+
+  scsihw      = "virtio-scsi-pci"
 
   lifecycle {
     ignore_changes = [
@@ -18,6 +19,13 @@ resource "proxmox_vm_qemu" "proxmox_vm_master" {
       network
     ]
   }
+ 
+  disk {
+    size    = "100G"
+    storage = "local-lvm"
+    type    = "scsi"
+  }
+
 
 }
 
@@ -32,6 +40,7 @@ resource "proxmox_vm_qemu" "proxmox_vm_workers" {
   cores       = 4
 
   ipconfig0 = "ip=${var.worker_ips[count.index]}/${var.networkrange},gw=${var.gateway}"
+  scsihw      = "virtio-scsi-pci"
 
   lifecycle {
     ignore_changes = [
@@ -40,6 +49,13 @@ resource "proxmox_vm_qemu" "proxmox_vm_workers" {
       disk,
       network
     ]
+  }
+
+
+  disk {
+    size    = "100G"
+    storage = "local-lvm"
+    type    = "scsi"
   }
 
 }
